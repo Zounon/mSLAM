@@ -1,0 +1,90 @@
+﻿{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+
+  "configurePresets": [
+    {
+      "name": "win-ninja-base",
+      "hidden": true,
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+
+        "OpenCV_DIR": "C:/Users/mm/Documents/opencv/build",
+        "OPENCV_BIN_DIR": "C:/Users/mm/Documents/opencv/build/x64/vc16/bin"
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "inherits": "win-ninja-base",
+      "displayName": "Ninja Multi-Config (Debug default)"
+    },
+    {
+      "name": "ninja-release",
+      "inherits": "win-ninja-base",
+      "displayName": "Ninja Multi-Config (Release default)"
+    },
+
+    {
+      "name": "vs2022-x64",
+      "displayName": "Visual Studio 2022 (x64)",
+      "generator": "Visual Studio 17 2022",
+      "architecture": { "value": "x64" },
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+
+        "OpenCV_DIR": "C:/Users/mm/Documents/opencv/build",
+        "OPENCV_BIN_DIR": "C:/Users/mm/Documents/opencv/build/x64/vc16/bin"
+      }
+    }
+  ],
+
+  "buildPresets": [
+    {
+      "name": "build-ninja-debug",
+      "configurePreset": "ninja-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "build-ninja-release",
+      "configurePreset": "ninja-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "build-vs-debug",
+      "configurePreset": "vs2022-x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "build-vs-release",
+      "configurePreset": "vs2022-x64",
+      "configuration": "Release"
+    }
+  ],
+
+  "testPresets": [
+    {
+      "name": "test-ninja-debug",
+      "configurePreset": "ninja-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "test-ninja-release",
+      "configurePreset": "ninja-release",
+      "configuration": "Release"
+    }
+  ]
+}
