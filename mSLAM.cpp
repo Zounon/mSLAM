@@ -4,6 +4,61 @@
 #include <opencv2/core.hpp>
 #include <ranges>
 #include <chrono>
+#include <thread>
+#include <pangolin/pangolin.h>
+
+//class Camera
+//{
+//public:
+//
+//};
+
+class Viewer {
+private:
+	std::shared_ptr<Frame> curr_frame = nullptr;
+	
+public:
+	Viewer() {
+		std::thread viewer_thread = std::thread(std::bind(&Viewer::ThreadLoop, this));
+	};
+
+	void setCurrFrame(std::shared_ptr<Frame> frame) {
+		curr_frame = frame;
+	}
+
+	void ThreadLoop() {
+		pangolin::CreateWindowAndBind("mSLAM Viewer", 1920, 1080);
+		//glEnable(GL_DEPTH_TEST);
+
+		pangolin::OpenGlRenderState viewer_cam(
+			pangolin::ProjectionMatrix(1920, 1080, 420, 420, 960, 540, 0.1, 1000), // TODO: check these params
+			pangolin::ModelViewLookAt(0, -10, -8, 0, 0, 0, pangolin::AxisY) // TODO: check these params
+		);
+
+		pangolin::View& viwer_display = pangolin::CreateDisplay()
+			.SetBounds(0.0, 1.0, 0.0, 1.0, -1920.0f / 1080.0f)
+			.SetHandler(new pangolin::Handler3D(viewer_cam));
+
+		while (!pangolin::ShouldQuit()) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			viwer_display.Activate(viewer_cam);
+
+			if (curr_frame) {
+				//DrawFrame(curr_frame, { 0,1,0 });
+				//FollowCurrentFrame
+
+				cv::imshow("curr frame", curr_frame->img);
+				cv::waitKey(1);
+			}
+			pangolin::FinishFrame();
+			//usleep(5000);
+		}
+
+
+
+	};
+};
 
 class Frontend
 {
@@ -41,57 +96,13 @@ public:
 		prev_keypts = std::move(prev_keypts_filtered);
 		curr_keypts = std::move(curr_keypts_filtered);
 	}
-};
 
-class Frame
-{
-public:
-	//int id;
-	bool is_valid = false;
-	cv::Mat img;
-	cv::Mat bw;
-	std::vector<cv::Point2f> keypts;
-
-	Frame(cv::VideoCapture& cap)
+	bool estimatePose(const std::vector<cv::Point2f>& prev_keypts, const std::vector<cv::Point2f>& curr_keypts)
 	{
-		if (!cap.read(img) || img.empty()) {
-			std::cerr << "Failed to load img from cap device" << std::endl;
-			return;
-		};
-		is_valid = true;
-
-
-		img = img(cv::Range(img.size().height * 2 / 10, img.size().height * 7 / 10), cv::Range(0, img.size().width)).clone();
-
-		//int height = img.size().height;
-		//int width = img.size().width;
-		//cv::Mat mask = cv::Mat::zeros(img.size(), CV_8UC1);
-		//cv::Rect mask_shape(width / 10, height / 10, width * 8 / 10, height * 6 / 10);
-		//cv::rectangle(mask, mask_shape, cv::Scalar(255), -1);
-		//img.setTo(cv::Scalar(0, 0, 20), ~mask);
-
-
-		cv::extractChannel(img, bw, 1);
-		//std::print("Frame size: {} {} \n", img.size().width, img.size().height);
-		//std::print("BW Frame size: {} {}\n", bw.size().width, bw.size().height);
 
 	}
-	
-	//Frame(cv::VideoCapture& cap, cv::Mat mask)
-	//{
-	//	if (!cap.read(img) || img.empty()) {
-	//		std::cerr << "Failed to load img from cap device" << std::endl;
-	//		return;
-	//	};
-	//	is_valid = true;
-
-	//	
-
-	//	cv::extractChannel(img, bw, 1);
-
-	//}
-	
 };
+
 
 
 int main()
@@ -105,6 +116,7 @@ int main()
 
 	///////////////// PRE MAIN INIT ////////////////////////////
 	Frontend frontend;
+	Viewer viewer;
 	Frame prev = Frame(cap);
 	cv::goodFeaturesToTrack(prev.bw, prev.keypts, 200, 0.01, 100.0);
 

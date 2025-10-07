@@ -13,6 +13,7 @@
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "CMAKE_CXX_STANDARD": "23",
         "CMAKE_CXX_STANDARD_REQUIRED": "ON",
@@ -20,7 +21,8 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
 
         "OpenCV_DIR": "C:/Users/mm/Documents/opencv/build",
-        "OPENCV_BIN_DIR": "C:/Users/mm/Documents/opencv/build/x64/vc16/bin"
+        "OPENCV_BIN_DIR": "C:/Users/mm/Documents/opencv/build/x64/vc16/bin",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     },
     {
@@ -41,13 +43,15 @@
       "architecture": { "value": "x64" },
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "CMAKE_CXX_STANDARD": "23",
         "CMAKE_CXX_STANDARD_REQUIRED": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
 
         "OpenCV_DIR": "C:/Users/mm/Documents/opencv/build",
-        "OPENCV_BIN_DIR": "C:/Users/mm/Documents/opencv/build/x64/vc16/bin"
+        "OPENCV_BIN_DIR": "C:/Users/mmDocuments/opencv/build/x64/vc16/bin",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     }
   ],

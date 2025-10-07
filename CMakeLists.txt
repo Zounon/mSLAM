@@ -8,15 +8,22 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # option(ENABLE_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 # option(OPENCV_COPY_DLLS "Copy OpenCV DLLs next to the exe after build" ON)
 
-find_package(OpenCV 4.5 REQUIRED
-  COMPONENTS core imgproc highgui videoio features2d calib3d)
+find_package(OpenCV 4.5 REQUIRED COMPONENTS core imgproc highgui videoio features2d calib3d)
+
+find_package(Pangolin REQUIRED) 
+include_directories(${Pangolin_INCLUDE_DIRS})
+
 
 add_executable(mSLAM
   mSLAM.cpp
-)
+ "Frame.cpp")
 
-target_include_directories(mSLAM PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(mSLAM PRIVATE ${OpenCV_LIBS})
+target_include_directories(mSLAM PRIVATE 
+    ${OpenCV_INCLUDE_DIRS} 
+    ${Pangolin_INCLUDE_DIRS}
+)
+target_link_libraries(mSLAM PRIVATE ${OpenCV_LIBS} ${Pangolin_LIBRARIES})
+
 target_compile_features(mSLAM PRIVATE cxx_std_23)
 
 # ---- MSVC niceties ----
