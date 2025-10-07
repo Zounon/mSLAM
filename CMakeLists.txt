@@ -16,7 +16,9 @@ include_directories(${Pangolin_INCLUDE_DIRS})
 
 add_executable(mSLAM
   mSLAM.cpp
- "Frame.cpp")
+  "Frame.cpp"
+  "Frontend.cpp"
+  "Viewer.cpp")
 
 target_include_directories(mSLAM PRIVATE 
     ${OpenCV_INCLUDE_DIRS} 

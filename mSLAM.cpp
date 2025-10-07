@@ -1,108 +1,13 @@
-﻿//#include "mSLAM.h"
-#include <print>
+﻿#include <print>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <ranges>
 #include <chrono>
 #include <thread>
 #include <pangolin/pangolin.h>
-
-//class Camera
-//{
-//public:
-//
-//};
-
-class Viewer {
-private:
-	std::shared_ptr<Frame> curr_frame = nullptr;
-	
-public:
-	Viewer() {
-		std::thread viewer_thread = std::thread(std::bind(&Viewer::ThreadLoop, this));
-	};
-
-	void setCurrFrame(std::shared_ptr<Frame> frame) {
-		curr_frame = frame;
-	}
-
-	void ThreadLoop() {
-		pangolin::CreateWindowAndBind("mSLAM Viewer", 1920, 1080);
-		//glEnable(GL_DEPTH_TEST);
-
-		pangolin::OpenGlRenderState viewer_cam(
-			pangolin::ProjectionMatrix(1920, 1080, 420, 420, 960, 540, 0.1, 1000), // TODO: check these params
-			pangolin::ModelViewLookAt(0, -10, -8, 0, 0, 0, pangolin::AxisY) // TODO: check these params
-		);
-
-		pangolin::View& viwer_display = pangolin::CreateDisplay()
-			.SetBounds(0.0, 1.0, 0.0, 1.0, -1920.0f / 1080.0f)
-			.SetHandler(new pangolin::Handler3D(viewer_cam));
-
-		while (!pangolin::ShouldQuit()) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			viwer_display.Activate(viewer_cam);
-
-			if (curr_frame) {
-				//DrawFrame(curr_frame, { 0,1,0 });
-				//FollowCurrentFrame
-
-				cv::imshow("curr frame", curr_frame->img);
-				cv::waitKey(1);
-			}
-			pangolin::FinishFrame();
-			//usleep(5000);
-		}
-
-
-
-	};
-};
-
-class Frontend
-{
-public:
-	int num_features = 100;
-	int min_distance /*btwn features*/ = 20; // TODO: min dist should be a fn of input img;
-	//int frame_id = 0;
-
-	cv::Ptr<cv::GFTTDetector> gftt = cv::GFTTDetector::create(num_features, 0.01, 20);
-
-	void trackFeatures(cv::Mat& prev_bw, cv::Mat& curr_bw,
-		std::vector<cv::Point2f>& prev_keypts, std::vector<cv::Point2f>& curr_keypts)
-	{
-		if (prev_keypts.size() < 10) {
-			std::cerr << "Too few keypts to track" << std::endl;
-			return;
-		}
-
-		std::vector<uchar> status;
-		std::vector<float> err;
-
-		cv::calcOpticalFlowPyrLK(prev_bw, curr_bw, prev_keypts, curr_keypts,
-			status, err,
-			cv::Size(11, 11), 3,
-			cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01),
-			0, 1e-4);
-
-		std::vector<cv::Point2f> prev_keypts_filtered, curr_keypts_filtered;
-		for (size_t i = 0; i < status.size(); ++i) {
-			if (status[i] == 1 && err[i] < 12.0f) {
-				prev_keypts_filtered.push_back(prev_keypts[i]);
-				curr_keypts_filtered.push_back(curr_keypts[i]);
-			}
-		}
-		prev_keypts = std::move(prev_keypts_filtered);
-		curr_keypts = std::move(curr_keypts_filtered);
-	}
-
-	bool estimatePose(const std::vector<cv::Point2f>& prev_keypts, const std::vector<cv::Point2f>& curr_keypts)
-	{
-
-	}
-};
-
+#include "Frame.h"
+#include "Frontend.h"
+#include "Viewer.h"
 
 
 int main()
@@ -151,8 +56,8 @@ int main()
 			cv::line(curr.img, prev.keypts[i], curr.keypts[i], cv::Scalar(0, 255, 255), 1);
 		}
 
-
-
+		///////////////// SEND FRAME TO PANGOLIN VIEWER ////////////////////////////
+		viewer.setCurrFrame(std::make_shared<Frame>(curr));
 
 		///////////////// POST MAIN ////////////////////////////
 		auto clock_end = std::chrono::high_resolution_clock::now();
@@ -167,12 +72,10 @@ int main()
 		cv::putText(curr.img, std::format("# feat {}", curr.keypts.size()),
 			{ 100,80 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255,0,255 }, 1);
 
-		cv::imshow("display", curr.img);
-		if (cv::waitKey(1) == 27) {
-			break;
-		}
-
-
+		//cv::imshow("display", curr.img);
+		//if (cv::waitKey(1) == 27) {
+		//	break;
+		//}
 		prev = std::move(curr);
 	}
 
