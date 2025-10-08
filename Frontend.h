@@ -3,7 +3,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <vector>
-#include <iostream>
+
+#include "Frame.h"
+#include "Viewer.h"
 
 class Frontend
 {
@@ -14,8 +16,19 @@ public:
 
 	cv::Ptr<cv::GFTTDetector> gftt = cv::GFTTDetector::create(num_features, 0.01, 20);
 
-	void trackFeatures(cv::Mat& prev_bw, cv::Mat& curr_bw,
-		std::vector<cv::Point2f>& prev_keypts, std::vector<cv::Point2f>& curr_keypts);
+	bool addFrame(std::shared_ptr<Frame> frame);
 
-	bool estimatePose(const std::vector<cv::Point2f>& prev_keypts, const std::vector<cv::Point2f>& curr_keypts);
+	void trackFeatures();
+
+	void extractNewFeatures(int min_features, int max_total_features);
+
+	bool estimatePose();
+
+	std::shared_ptr<Frame> getCurrFrame() const { return curr_frame_; }
+	std::shared_ptr<Frame> getPrevFrame() const { return curr_frame_; }
+
+private:
+	std::shared_ptr<Frame> prev_frame_ = nullptr;
+	std::shared_ptr<Frame> curr_frame_ = nullptr;
+	std::shared_ptr<Viewer> viewer_ = nullptr;
 };
