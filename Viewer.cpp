@@ -20,21 +20,19 @@ void Viewer::updateFPS(double frame_time) {
 }
 
 void Viewer::annotateFrame() {
-	//for (const auto& pt : curr_frame->keypts) {
-	//	cv::circle(curr_frame->img, pt, 5, cv::Scalar(0, 255, 0), -1);
-	//}
+	for (const auto& pt : curr_frame->keypts) {
+		cv::circle(curr_frame->img, pt, 5, cv::Scalar(0, 255, 0), -1);
+	}
 	for (const auto& pt : prev_frame->keypts) {
 		cv::circle(curr_frame->img, pt, 2, cv::Scalar(255, 255, 0), -1);
 	}
-	//for (size_t i = 0; i < prev.keypts.size() && i < curr.keypts.size(); ++i) {
-	//	cv::line(curr.img, prev.keypts[i], curr.keypts[i], cv::Scalar(0, 255, 255), 1);
-	//}
 	for (auto i=0; i < curr_frame->keypts.size() && i < prev_frame->keypts.size(); ++i) {
-		if (curr_frame->keypts[i] == prev_frame->keypts[i]) continue;
+		if (curr_frame->keypts[i] == prev_frame->keypts[i]) { continue; }
+
 		cv::line(curr_frame->img, prev_frame->keypts[i], curr_frame->keypts[i], cv::Scalar(0, 255, 255), 1);
-		std::cout << std::format("pt {}: ({:.1f}, {:.1f}) -> ({:.1f}, {:.1f})\n", i,
-			prev_frame->keypts[i].x, prev_frame->keypts[i].y,
-			curr_frame->keypts[i].x, curr_frame->keypts[i].y);
+		//std::cout << std::format("pt {}: ({:.1f}, {:.1f}) -> ({:.1f}, {:.1f})\n", i,
+		//	prev_frame->keypts[i].x, prev_frame->keypts[i].y,
+		//	curr_frame->keypts[i].x, curr_frame->keypts[i].y);
 	}
 	
 	cv::putText(curr_frame->img, std::format("FPS: {:.1f}", fps_avg),
@@ -77,6 +75,7 @@ void Viewer::ThreadLoop() {
 			cv::imshow("curr frame", curr_frame->img);
 			if (cv::waitKey(1) == 27) {
 				//viewer_display.
+				viewer_is_running = false;
 				break;
 			}
 		}

@@ -25,10 +25,17 @@ public:
 	bool estimatePose();
 
 	std::shared_ptr<Frame> getCurrFrame() const { return curr_frame_; }
-	std::shared_ptr<Frame> getPrevFrame() const { return curr_frame_; }
+	std::shared_ptr<Frame> getPrevFrame() const { return prev_frame_; }
 
 private:
 	std::shared_ptr<Frame> prev_frame_ = nullptr;
 	std::shared_ptr<Frame> curr_frame_ = nullptr;
 	std::shared_ptr<Viewer> viewer_ = nullptr;
+	cv::Mat K = (cv::Mat_<double>(3, 3) <<
+		718.856, 0, 607.1928,
+		0, 718.856, 185.2157,
+		0, 0, 1);
+	//cv::Mat<float> K = { 718.856, 0, 607.1928,
+	//	0, 718.856, 185.2157,
+	//	0, 0, 1 };
 };

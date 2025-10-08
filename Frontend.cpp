@@ -77,5 +77,40 @@ void Frontend::extractNewFeatures(int min_features, int max_total_features)
 
 bool Frontend::estimatePose()
 {
+	if (!prev_frame_ || !curr_frame_) {
+		std::cerr << "Need both previous and current frames for pose estimation" << std::endl;
+		return false;
+	}
+	if (prev_frame_->keypts.size() < 8 || curr_frame_->keypts.size() < 8) {
+		std::cerr << "Insufficient keypoints for pose estimation (need at least 8)" << std::endl;
+		return false;
+	}
+	cv::Mat K = (cv::Mat_<double>(3, 3) <<
+		718.856, 0, 607.1928,
+		0, 718.856, 185.2157,
+		0, 0, 1);
+	std::vector<uchar> inlier_mask;
+	cv::Mat E;
+	try {
+		 E = cv::findEssentialMat(
+			prev_frame_->keypts, curr_frame_->keypts,
+			K, cv::RANSAC, 0.999, 1.0, inlier_mask
+		);
+	} catch (const cv::Exception& e) {
+		std::cerr << "Error in findEssentialMat: " << e.what() << std::endl;
+		return false;
+	}
+
+	if (E.empty()) {
+		std::cerr << "Essential matrix computation failed" << std::endl;
+		return false;
+	}
+
+	cv::Mat R, t;
+	int inliers = cv::recoverPose(E, prev_frame_->keypts, curr_frame_->keypts, K, R, t, inlier_mask);
+
+	std::print("Recovered pose with {} inliers\n", inliers);
+
+
 	return false;
 }

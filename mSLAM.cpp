@@ -29,7 +29,7 @@ int main()
 		frontend.getCurrFrame()->keypts,
 		200, 0.01, 100.0);
 
-	while (true) {
+	while (viewer.isRunning()) {
 		auto clock_start = std::chrono::high_resolution_clock::now();
 
 		frontend.addFrame(std::make_shared<Frame>(cap));
@@ -37,19 +37,12 @@ int main()
 
 		///////////////// FEATURE EXTRACTION ////////////////////////////
 		frontend.trackFeatures(); 
+		frontend.estimatePose();
 		
 		if (frontend.getCurrFrame()->keypts.size() < 50) {
 			frontend.extractNewFeatures(50, 200);
 		}
 
-
-
-
-
-
-
-
-		////////////////// VISUALIZATION ////////////////////////////
 
         viewer.setFrames(frontend.getPrevFrame(), frontend.getCurrFrame());
 
@@ -58,7 +51,7 @@ int main()
         std::chrono::duration<double> elapsed = clock_end - clock_start;
         viewer.updateFPS(elapsed.count());
 	}
-
+	
 	cap.release();
 	cv::destroyAllWindows();
 	return 0;

@@ -23,10 +23,11 @@ public:
 
 	void setFrames(std::shared_ptr<Frame> prev, std::shared_ptr<Frame> curr);
 
-	void setCurrFrame(std::shared_ptr<Frame> frame);
+	//void setCurrFrame(std::shared_ptr<Frame> frame);
 
 	void updateFPS(double frame_time);
 	void annotateFrame();
-
 	void ThreadLoop();
+
+	bool isRunning() const { return viewer_is_running; }
 };
