@@ -7,6 +7,8 @@
 #include "Frame.h"
 #include "Viewer.h"
 
+#include <sophus/se3.hpp>
+
 class Frontend
 {
 public:
@@ -17,6 +19,7 @@ public:
 	cv::Ptr<cv::GFTTDetector> gftt = cv::GFTTDetector::create(num_features, 0.01, 20);
 
 	bool addFrame(std::shared_ptr<Frame> frame);
+	void setKeyframe();
 
 	void trackFeatures();
 
@@ -31,6 +34,9 @@ private:
 	std::shared_ptr<Frame> prev_frame_ = nullptr;
 	std::shared_ptr<Frame> curr_frame_ = nullptr;
 	std::shared_ptr<Viewer> viewer_ = nullptr;
+
+	Sophus::SE3<double> relative_motion_;
+
 	cv::Mat K = (cv::Mat_<double>(3, 3) <<
 		718.856, 0, 607.1928,
 		0, 718.856, 185.2157,

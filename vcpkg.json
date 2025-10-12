@@ -1,5 +1,7 @@
 {
   "dependencies": [
-    "pangolin"
+    "pangolin",
+    "eigen3",
+    "sophus"
   ]
 }

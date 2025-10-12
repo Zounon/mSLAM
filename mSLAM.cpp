@@ -23,11 +23,13 @@ int main()
 	Frontend frontend;
 	Viewer viewer;
 	frontend.addFrame(std::make_shared<Frame>(cap));
+	frontend.getCurrFrame()->setKeyFrame();
 
 	cv::goodFeaturesToTrack(
 		frontend.getCurrFrame()->bw,
 		frontend.getCurrFrame()->keypts,
 		200, 0.01, 100.0);
+
 
 	while (viewer.isRunning()) {
 		auto clock_start = std::chrono::high_resolution_clock::now();
@@ -35,12 +37,12 @@ int main()
 		frontend.addFrame(std::make_shared<Frame>(cap));
 
 
-		///////////////// FEATURE EXTRACTION ////////////////////////////
 		frontend.trackFeatures(); 
 		frontend.estimatePose();
 		
-		if (frontend.getCurrFrame()->keypts.size() < 50) {
-			frontend.extractNewFeatures(50, 200);
+		if (frontend.getCurrFrame()->keypts.size() < 30) {
+			frontend.getCurrFrame()->setKeyFrame();
+			frontend.extractNewFeatures(50, 300);
 		}
 
 

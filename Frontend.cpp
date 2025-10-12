@@ -18,6 +18,7 @@ bool Frontend::addFrame(std::shared_ptr<Frame> frame)
 	return true;
 }
 
+
 void Frontend::trackFeatures()
 {
 	if (prev_frame_->keypts.size() < 10) {
@@ -25,32 +26,58 @@ void Frontend::trackFeatures()
 		return;
 	}
 
-	//if (curr_frame_->keypts.empty()) {
-	//	curr_frame_->keypts = prev_frame_->keypts;
-	//}
+	if (curr_frame_->keypts.empty()) {
+		curr_frame_->keypts = prev_frame_->keypts;
+	}
 
 	std::vector<uchar> status;
 	std::vector<float> err;
 	//std::vector<cv:Point2f> back_tracked;
 
-
-
-
 	cv::calcOpticalFlowPyrLK(
 		prev_frame_->bw, curr_frame_->bw,
 		prev_frame_->keypts, curr_frame_->keypts,
 		status, err,
-		cv::Size(11, 11), 3,
+		cv::Size(21, 21), 3,
 		cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01),
-		0, 1e-4);
-		//cv::OPTFLOW_USE_INITIAL_FLOW);
+		cv::OPTFLOW_USE_INITIAL_FLOW);
+		//0, 1e-4);
+
+	//std::vector<cv::Point2f> prev_keypts_filtered, curr_keypts_filtered;
+	//for (size_t i = 0; i < status.size(); ++i) {
+	//	//float fb_err = cv::norm(prev_frame_->keypts[i] - back_tracked[i]);
+	//	if (status[i] == 1 && err[i] < 12.0f) {
+	//		prev_keypts_filtered.push_back(prev_frame_->keypts[i]);
+	//		curr_keypts_filtered.push_back(curr_frame_->keypts[i]);
+	//	}
+	//}
+
+	// Backward tracking to validate matches
+	std::vector<uchar> back_status;
+	std::vector<float> back_err;
+	std::vector<cv::Point2f> back_tracked;
+
+	cv::calcOpticalFlowPyrLK(
+		curr_frame_->bw, prev_frame_->bw,
+		curr_frame_->keypts, back_tracked,
+		back_status, back_err,
+		cv::Size(21, 21), 3,
+		cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01));
 
 	std::vector<cv::Point2f> prev_keypts_filtered, curr_keypts_filtered;
+	const float max_fb_error = 1.0f;
+	const float max_flow_error = 8.0f;
+
 	for (size_t i = 0; i < status.size(); ++i) {
-		//float fb_err = cv::norm(prev_frame_->keypts[i] - back_tracked[i]);
-		if (status[i] == 1 && err[i] < 12.0f) {
-			prev_keypts_filtered.push_back(prev_frame_->keypts[i]);
-			curr_keypts_filtered.push_back(curr_frame_->keypts[i]);
+		if (status[i] && back_status[i]) {
+			float fb_err = cv::norm(prev_frame_->keypts[i] - back_tracked[i]);
+			if (fb_err < max_fb_error && err[i] < max_flow_error) {
+				//float displacement = cv::norm(prev_frame_->keypts[i] - curr_frame_->keypts[i]);
+				//if (displacement < 100.0f) {
+					prev_keypts_filtered.push_back(prev_frame_->keypts[i]);
+					curr_keypts_filtered.push_back(curr_frame_->keypts[i]);
+				//}
+			}
 		}
 	}
 	prev_frame_->keypts = std::move(prev_keypts_filtered);
@@ -85,10 +112,14 @@ bool Frontend::estimatePose()
 		std::cerr << "Insufficient keypoints for pose estimation (need at least 8)" << std::endl;
 		return false;
 	}
-	cv::Mat K = (cv::Mat_<double>(3, 3) <<
-		718.856, 0, 607.1928,
-		0, 718.856, 185.2157,
-		0, 0, 1);
+	//cv::Mat K = (cv::Mat_<double>(3, 3) <<
+	//	718.856, 0, 607.1928,
+	//	0, 718.856, 185.2157,
+	//	0, 0, 1);
+
+
+
+
 	std::vector<uchar> inlier_mask;
 	cv::Mat E;
 	try {
@@ -114,3 +145,8 @@ bool Frontend::estimatePose()
 
 	return false;
 }
+
+
+//int triangulatePoints() {
+//
+//}

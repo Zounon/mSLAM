@@ -1,5 +1,9 @@
 #include "Frame.h"
 #include <print>
+#include <mutex>
+
+#include <sophus/se3.hpp>
+#include <sophus/so3.hpp>
 
 Frame::Frame(cv::VideoCapture& cap)
 {
@@ -9,7 +13,7 @@ Frame::Frame(cv::VideoCapture& cap)
 	};
 	is_valid = true;
 
-	img = img(cv::Range(img.size().height * 2 / 10, img.size().height * 7 / 10), cv::Range(0, img.size().width)).clone();
+	img = img(cv::Range(img.size().height * 2 / 10, img.size().height * 6 / 10), cv::Range(0, img.size().width)).clone();
 
 	//int height = img.size().height;
 	//int width = img.size().width;
@@ -23,13 +27,16 @@ Frame::Frame(cv::VideoCapture& cap)
 	//std::print("BW Frame size: {} {}\n", bw.size().width, bw.size().height);
 }
 
-//Frame::Frame(cv::VideoCapture& cap, cv::Mat mask)
-//{
-//	if (!cap.read(img) || img.empty()) {
-//		std::cerr << "Failed to load img from cap device" << std::endl;
-//		return;
-//	};
-//	is_valid = true;
-//
-//	cv::extractChannel(img, bw, 1);
-//}
+
+Sophus::SE3<double> Frame::getPose()
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	return pose;
+}
+
+void Frame::setPose(Sophus::SE3<double> new_pose)
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	pose = new_pose;
+}
+
