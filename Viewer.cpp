@@ -1,5 +1,6 @@
 #include "Viewer.h"
 #include "Frame.h"
+#include "Feature.h"
 
 #include <format>
 
@@ -20,26 +21,40 @@ void Viewer::updateFPS(double frame_time) {
 }
 
 void Viewer::annotateFrame() {
-	for (const auto& pt : curr_frame->keypts) {
-		cv::circle(curr_frame->img, pt, 5, cv::Scalar(0, 255, 0), -1);
-	}
-	for (const auto& pt : prev_frame->keypts) {
-		cv::circle(curr_frame->img, pt, 2, cv::Scalar(255, 255, 0), -1);
-	}
-	for (auto i=0; i < curr_frame->keypts.size() && i < prev_frame->keypts.size(); ++i) {
-		if (curr_frame->keypts[i] == prev_frame->keypts[i]) { continue; }
 
-		cv::line(curr_frame->img, prev_frame->keypts[i], curr_frame->keypts[i], cv::Scalar(0, 255, 255), 1);
-		//std::cout << std::format("pt {}: ({:.1f}, {:.1f}) -> ({:.1f}, {:.1f})\n", i,
-		//	prev_frame->keypts[i].x, prev_frame->keypts[i].y,
-		//	curr_frame->keypts[i].x, curr_frame->keypts[i].y);
+	for (const auto& feature : prev_frame->features_) {
+		if (feature->map_point_ptr != nullptr) {
+			cv::circle(curr_frame->img, feature->keypoint.pt, 5, cv::Scalar(0,200,200), -1);
+
+			
+
+		}
 	}
+
+
+	// for (const auto& pt : curr_frame->keypts) {
+	// 	cv::circle(curr_frame->img, pt, 5, cv::Scalar(0, 255, 0), -1);
+	// }
+	// for (const auto& pt : prev_frame->keypts) {
+	// 	cv::circle(curr_frame->img, pt, 2, cv::Scalar(255, 255, 0), -1);
+	// }
+	// for (auto i=0; i < curr_frame->keypts.size() && i < prev_frame->keypts.size(); ++i) {
+	// 	if (curr_frame->keypts[i] == prev_frame->keypts[i]) { continue; }
+
+	// 	cv::line(curr_frame->img, prev_frame->keypts[i], curr_frame->keypts[i], cv::Scalar(0, 255, 255), 1);
+	// 	//std::cout << std::format("pt {}: ({:.1f}, {:.1f}) -> ({:.1f}, {:.1f})\n", i,
+	// 	//	prev_frame->keypts[i].x, prev_frame->keypts[i].y,
+	// 	//	curr_frame->keypts[i].x, curr_frame->keypts[i].y);
+	// }
 	
 	cv::putText(curr_frame->img, std::format("FPS: {:.1f}", fps_avg),
 		{ 100, 50 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
 	
-	cv::putText(curr_frame->img, std::format("# feat: {}", curr_frame->keypts.size()),
+	cv::putText(curr_frame->img, std::format("# keypts: {}", curr_frame->keypts.size()),
 		{ 100, 80 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
+
+	cv::putText(curr_frame->img, std::format("# feat: {}", curr_frame->features_.size()),
+		{ 100, 110 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
 }
 
 void Viewer::ThreadLoop() {

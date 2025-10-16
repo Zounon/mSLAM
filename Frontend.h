@@ -1,13 +1,13 @@
-#pragma once
+#ifndef FRONTEND_H
+#define FRONTEND_H
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <vector>
+#include <sophus/se3.hpp>
 
 #include "Frame.h"
 #include "Viewer.h"
-
-#include <sophus/se3.hpp>
 
 class Frontend
 {
@@ -15,6 +15,7 @@ public:
 	int num_features = 100;
 	int min_distance /*btwn features*/ = 20; // TODO: min dist should be a fn of input img;
 	//int frame_id = 0;
+	std::shared_ptr<Frame> last_keyframe = nullptr;
 
 	cv::Ptr<cv::GFTTDetector> gftt = cv::GFTTDetector::create(num_features, 0.01, 20);
 
@@ -25,9 +26,11 @@ public:
 
 	void extractNewFeatures(int min_features, int max_total_features);
 
-	bool estimatePose();
+    void triangulatePoints();
 
-	std::shared_ptr<Frame> getCurrFrame() const { return curr_frame_; }
+    bool estimatePose();
+
+    std::shared_ptr<Frame> getCurrFrame() const { return curr_frame_; }
 	std::shared_ptr<Frame> getPrevFrame() const { return prev_frame_; }
 
 private:
@@ -45,3 +48,5 @@ private:
 	//	0, 718.856, 185.2157,
 	//	0, 0, 1 };
 };
+
+#endif // FRONTEND_H

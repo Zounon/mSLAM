@@ -42,6 +42,7 @@ int main()
 		
 		if (frontend.getCurrFrame()->keypts.size() < 30) {
 			frontend.getCurrFrame()->setKeyFrame();
+			frontend.last_keyframe = frontend.getCurrFrame();
 			frontend.extractNewFeatures(50, 300);
 		}
 

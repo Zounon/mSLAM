@@ -43,14 +43,14 @@
       "architecture": { "value": "x64" },
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "C:/Users/mm/vcpkg/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "CMAKE_CXX_STANDARD": "23",
         "CMAKE_CXX_STANDARD_REQUIRED": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
-
-        "OpenCV_DIR": "C:/Users/mm/Documents/opencv/build",
-        "OPENCV_BIN_DIR": "C:/Users/mmDocuments/opencv/build/x64/vc16/bin",
+        "OpenCV_DIR": "C:/opencv/build",
+        "OPENCV_BIN_DIR": "C:/opencv/build/x64/vc16/bin",
+        "OPENCV_COPY_DLLS": "ON",
         "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     }

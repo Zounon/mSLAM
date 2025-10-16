@@ -1,12 +1,13 @@
-#pragma once
+#ifndef VIEWER_H
+#define VIEWER_H
 
 #include <memory>
 #include <thread>
 #include <functional>
+#include <mutex>
 #include <pangolin/pangolin.h>
 #include <opencv2/opencv.hpp>
 
-// Forward declaration
 class Frame;
 
 class Viewer {
@@ -31,3 +32,5 @@ public:
 
 	bool isRunning() const { return viewer_is_running; }
 };
+
+#endif // VIEWER_H
