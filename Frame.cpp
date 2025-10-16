@@ -11,10 +11,10 @@ Frame::Frame(cv::VideoCapture& cap)
 		std::cerr << "Failed to load img from cap device" << std::endl;
 		return;
 	};
-	is_valid = true;
 
 	img = img(cv::Range(img.size().height * 2 / 10, img.size().height * 6 / 10), cv::Range(0, img.size().width)).clone();
 	cv::extractChannel(img, bw, 1);
+	is_valid = true;
 }
 
 

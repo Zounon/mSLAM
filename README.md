@@ -6,7 +6,8 @@
 ### Intention of this project
 1. Build a strong understanding for how (monocular) SLAM systems are engineered
 2. Improve my proficiency in modern C++
-3. Create a SLAM system efficent enough to run on a Raspberry Pi
+3. Create a SLAM system 
+4. Create a SLAM system efficent enough to run on a Raspberry Pi
 
 
 ### Tech stack

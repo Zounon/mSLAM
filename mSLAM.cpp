@@ -12,6 +12,7 @@
 
 int main()
 {
+	constexpr int MIN_NUM_FEATURES = 30;
 
 	cv::VideoCapture cap("C:\\Users\\mm\\source\\repos\\mSLAM\\media\\slow-snowcoverd-road.MP4");
 	if (!cap.isOpened()) {
@@ -19,37 +20,35 @@ int main()
 		return -1;
 	}
 
-	///////////////// PRE MAIN INIT ////////////////////////////
 	Frontend frontend;
 	Viewer viewer;
 	frontend.addFrame(std::make_shared<Frame>(cap));
 	frontend.getCurrFrame()->setKeyFrame();
+	frontend.getCurrFrame()->setPose(Sophus::SE3d());
+	frontend.extractNewFeatures();
 
-	cv::goodFeaturesToTrack(
-		frontend.getCurrFrame()->bw,
-		frontend.getCurrFrame()->keypts,
-		200, 0.01, 100.0);
 
 
 	while (viewer.isRunning()) {
 		auto clock_start = std::chrono::high_resolution_clock::now();
 
-		frontend.addFrame(std::make_shared<Frame>(cap));
+		if (!frontend.addFrame(std::make_shared<Frame>(cap))) {
+			viewer.stopRunning();
+			break;
+		};
 
+		// if (frontend.getCurrFrame()->features_.size() < MIN_NUM_FEATURES) {
+			// frontend.getCurrFrame()->setKeyFrame();
+			// frontend.last_keyframe = frontend.getCurrFrame();
+			frontend.extractNewFeatures();
+		// }
 
-		frontend.trackFeatures(); 
+		// frontend.trackFeatures(); 
 		frontend.estimatePose();
 		
-		if (frontend.getCurrFrame()->keypts.size() < 30) {
-			frontend.getCurrFrame()->setKeyFrame();
-			frontend.last_keyframe = frontend.getCurrFrame();
-			frontend.extractNewFeatures(50, 300);
-		}
-
 
         viewer.setFrames(frontend.getPrevFrame(), frontend.getCurrFrame());
 
-		///////////////// POST MAIN ////////////////////////////
 		auto clock_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = clock_end - clock_start;
         viewer.updateFPS(elapsed.count());

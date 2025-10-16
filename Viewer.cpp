@@ -21,14 +21,15 @@ void Viewer::updateFPS(double frame_time) {
 }
 
 void Viewer::annotateFrame() {
+	if (!curr_frame || curr_frame->features_.empty()) {
+		return;
+	}
 
+	for (const auto& feature : curr_frame->features_) {
+		cv::circle(curr_frame->img, feature->keypoint.pt, 2, cv::Scalar(0,200,200), -1);
+	}
 	for (const auto& feature : prev_frame->features_) {
-		if (feature->map_point_ptr != nullptr) {
-			cv::circle(curr_frame->img, feature->keypoint.pt, 5, cv::Scalar(0,200,200), -1);
-
-			
-
-		}
+		cv::circle(curr_frame->img, feature->keypoint.pt, 2, cv::Scalar(0,100,100), -1);
 	}
 
 
@@ -50,8 +51,8 @@ void Viewer::annotateFrame() {
 	cv::putText(curr_frame->img, std::format("FPS: {:.1f}", fps_avg),
 		{ 100, 50 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
 	
-	cv::putText(curr_frame->img, std::format("# keypts: {}", curr_frame->keypts.size()),
-		{ 100, 80 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
+	//cv::putText(curr_frame->img, std::format("# keypts: {}", curr_frame->keypts.size()),
+	//	{ 100, 80 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
 
 	cv::putText(curr_frame->img, std::format("# feat: {}", curr_frame->features_.size()),
 		{ 100, 110 }, cv::FONT_HERSHEY_COMPLEX, 1.0, { 255, 0, 255 }, 1);
@@ -76,25 +77,20 @@ void Viewer::ThreadLoop() {
 		//viwer_display.Activate(viewer_cam);
 
 		std::lock_guard<std::mutex> lock(viewer_mutex);
-		if (curr_frame->is_valid) {
+		if (curr_frame && curr_frame->is_valid) {
 			//DrawFrame(curr_frame, { 0,1,0 });
 			//FollowCurrentFrame
 
 			annotateFrame();
-			//for (const auto& pt : curr_frame->keypts) {
-			//	cv::circle(curr_frame->img, pt, 3, cv::Scalar(0, 255, 0), -1);
-			//}
 
 			//pangolin::glDrawColouredCube();
 
 			cv::imshow("curr frame", curr_frame->img);
 			if (cv::waitKey(1) == 27) {
-				//viewer_display.
 				viewer_is_running = false;
 				break;
 			}
 		}
 		pangolin::FinishFrame();
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }

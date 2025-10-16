@@ -21,6 +21,7 @@ class Feature
 public:
     std::weak_ptr<Frame> frame_ptr; // the Frame this Feature was generated from 
     cv::KeyPoint keypoint; // 2D position in image Frame
+    cv::Mat descriptor;
     std::shared_ptr<MapPoint> map_point_ptr; // 3D point in world 
 
     bool is_outlier = false;

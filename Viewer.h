@@ -31,6 +31,9 @@ public:
 	void ThreadLoop();
 
 	bool isRunning() const { return viewer_is_running; }
+	void stopRunning() {
+		viewer_is_running = false;
+	}
 };
 
 #endif // VIEWER_H

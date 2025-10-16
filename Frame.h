@@ -18,9 +18,9 @@ class Frame
 public:
     cv::Mat img;
     cv::Mat bw;
-    std::vector<cv::Point2f> keypts;
     std::mutex mutex;
     std::vector<std::shared_ptr<Feature>> features_;
+    cv::Mat descriptors; /*of all features found in this img*/
     bool is_valid = false;
 
     Frame(cv::VideoCapture& cap);
@@ -46,40 +46,3 @@ public:
 };
 
 #endif // FRAME_H
-
-// class Frame
-// {
-// public:
-//     cv::Mat img;
-//     cv::Mat bw;
-//     std::vector<cv::Point2f> pts;
-//     bool is_valid = false;
-
-//     Frame() = default;
-
-//     explicit Frame(cv::VideoCapture& cap)
-//     {
-//         read(cap);
-//     }
-
-//     bool read(cv::VideoCapture& cap)
-//     {
-//         if (!cap.read(img) || img.empty()) {
-//             is_valid = false;
-//             bw.release();
-//             pts.clear();
-//             return false;
-//         }
-
-//         cv::extractChannel(img, bw, 1);
-//         pts.clear();
-//         is_valid = true;
-//         return true;
-//     }
-
-//     [[nodiscard]] bool isValid() const
-//     {
-//         return is_valid;
-//     }
-// };
-
